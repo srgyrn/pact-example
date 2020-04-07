@@ -8,6 +8,7 @@ import (
 type User struct {
 	Name     string
 	LastName string
+	Balance  float32
 	Orders   []int
 }
 
@@ -33,9 +34,20 @@ func NewUser(name, lastName string) (User, error) {
 	return u, nil
 }
 
+func (udb *UserDB) AddBalance(balance float32) (float32, error) {
+	key := generateKeyForUser(&udb.Usr)
+	if usr, ok := udb.db[key]; ok {
+		usr.Balance = usr.Balance + balance
+
+		return usr.Balance, nil
+	}
+
+	return 0, errors.New("user not found")
+}
+
 func (udb *UserDB) AddToDB() error {
 	if err := checkName(udb.Usr.Name, udb.Usr.LastName); err != nil {
-		return  err
+		return err
 	}
 
 	key := generateKeyForUser(&udb.Usr)
@@ -65,7 +77,7 @@ func (udb *UserDB) Delete(key string) bool {
 	return false
 }
 
-func checkName(name, lastName string ) error {
+func checkName(name, lastName string) error {
 	if name == "" || lastName == "" {
 		return errors.New("name or last name cannot be empty")
 	}

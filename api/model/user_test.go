@@ -19,7 +19,7 @@ func TestNewUser(t *testing.T) {
 		{
 			name:    "creates user",
 			args:    args{"Eric", "Smith"},
-			want:    User{"Eric", "Smith", nil},
+			want:    User{"Eric", "Smith", 0, nil},
 			wantErr: false,
 		},
 		{
@@ -74,7 +74,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 		{
 			name: "fails when user exists",
 			fields: fields{
-				User{"john", "doe", nil},
+				User{"john", "doe", 100, nil},
 				testDb,
 			},
 			wantErr: true,
@@ -82,7 +82,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 		{
 			name: "fails when user name is empty",
 			fields: fields{
-				User{"", "doe", nil},
+				User{"", "doe", 100, nil},
 				testDb,
 			},
 			wantErr: true,
@@ -90,7 +90,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 		{
 			name: "fails when user last name is empty",
 			fields: fields{
-				User{"jane", "", nil},
+				User{"jane", "", 100, nil},
 				testDb,
 			},
 			wantErr: true,
@@ -98,7 +98,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 		{
 			name: "adds user to db successfully",
 			fields: fields{
-				User{"Eric", "Smith", []int{7, 8, 9}},
+				User{"Eric", "Smith", 100, []int{7, 8, 9}},
 				testDb,
 			},
 			wantErr: false,
@@ -187,7 +187,7 @@ func TestUserDB_Find(t *testing.T) {
 			name:    "finds user successfully",
 			fields:  fields{User{}, getUserTestDb()},
 			key:     "john-doe",
-			want:    &User{"John", "Doe", nil},
+			want:    &User{"John", "Doe", 100, nil},
 			wantErr: false,
 		},
 		{
@@ -216,9 +216,33 @@ func TestUserDB_Find(t *testing.T) {
 	}
 }
 
+func TestUserDB_AddBalance(t *testing.T) {
+	udb := UserDB{
+		User{
+			Name:     "Jane",
+			LastName: "Doe",
+			Balance:  100,
+			Orders:   []int{1,2,3},
+		},
+		getUserTestDb(),
+	}
+
+	got, err := udb.AddBalance(5.95)
+
+	if err != nil {
+		t.Errorf("AddBalance failed. Got error %v", err)
+	}
+
+	want := float32(105.95)
+
+	if want != got {
+		t.Errorf("AddBalance failed. Want: %v, got %v", want, got)
+	}
+}
+
 func getUserTestDb() map[string]*User {
 	return map[string]*User{
-		"john-doe": &User{"John", "Doe", nil},
-		"jane-doe": &User{"Jane", "Doe", []int{1, 2, 3}},
+		"john-doe": &User{"John", "Doe", 100, nil},
+		"jane-doe": &User{"Jane", "Doe", 100,[]int{1, 2, 3}},
 	}
 }
