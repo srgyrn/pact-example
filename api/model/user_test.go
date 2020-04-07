@@ -64,7 +64,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 		db  map[string]*User
 	}
 
-	testDb := generateTestDb()
+	testDb := getUserTestDb()
 
 	tests := []struct {
 		name    string
@@ -114,10 +114,10 @@ func TestUserDB_AddToDB(t *testing.T) {
 				t.Errorf("AddToDB() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			want := generateTestDb()
+			want := getUserTestDb()
 			want[generateKeyForUser(&tt.fields.Usr)] = &tt.fields.Usr
 
-			if !tt.wantErr && !reflect.DeepEqual(want, testDb) {
+			if !tt.wantErr && !reflect.DeepEqual(want, tt.fields.db) {
 				t.Errorf("AddToDB() failed. want: %v, got: %v", want, testDb)
 			}
 		})
@@ -130,7 +130,7 @@ func TestUserDB_Delete(t *testing.T) {
 		db  map[string]*User
 	}
 
-	testDb := generateTestDb()
+	testDb := getUserTestDb()
 
 	tests := []struct {
 		name   string
@@ -185,14 +185,14 @@ func TestUserDB_Find(t *testing.T) {
 	}{
 		{
 			name:    "finds user successfully",
-			fields:  fields{User{}, generateTestDb()},
+			fields:  fields{User{}, getUserTestDb()},
 			key:     "john-doe",
 			want:    &User{"John", "Doe", nil},
 			wantErr: false,
 		},
 		{
 			name:    "fails when user does not exist",
-			fields:  fields{User{}, generateTestDb()},
+			fields:  fields{User{}, getUserTestDb()},
 			key:     "eric-smith",
 			want:    nil,
 			wantErr: true,
@@ -216,7 +216,7 @@ func TestUserDB_Find(t *testing.T) {
 	}
 }
 
-func generateTestDb() map[string]*User {
+func getUserTestDb() map[string]*User {
 	return map[string]*User{
 		"john-doe": &User{"John", "Doe", nil},
 		"jane-doe": &User{"Jane", "Doe", []int{1, 2, 3}},
