@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -216,33 +217,25 @@ func TestUserDB_Find(t *testing.T) {
 	}
 }
 
-func TestUserDB_AddBalance(t *testing.T) {
-	udb := UserDB{
-		User{
-			Name:     "Jane",
-			LastName: "Doe",
-			Balance:  100,
-			Orders:   []int{1,2,3},
-		},
-		getUserTestDb(),
-	}
-
-	got, err := udb.AddBalance(5.95)
+func ExampleUserDB_AddBalance() {
+	udb := NewUserDB()
+	udb.Usr, _ = NewUser("Jane", "Doe")
+	err := udb.AddToDB()
 
 	if err != nil {
-		t.Errorf("AddBalance failed. Got error %v", err)
+		return
 	}
 
-	want := float32(105.95)
+	got, _ := udb.AddBalance(5.95)
+	fmt.Printf("%.2f", got)
 
-	if want != got {
-		t.Errorf("AddBalance failed. Want: %v, got %v", want, got)
-	}
+	// Output:
+	// 5.95
 }
 
 func getUserTestDb() map[string]*User {
 	return map[string]*User{
 		"john-doe": &User{"John", "Doe", 100, nil},
-		"jane-doe": &User{"Jane", "Doe", 100,[]int{1, 2, 3}},
+		"jane-doe": &User{"Jane", "Doe", 100, []int{1, 2, 3}},
 	}
 }
