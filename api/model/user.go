@@ -20,8 +20,8 @@ type UserDB struct {
 }
 
 // NewUserDB creates a UserDB struct with empty initial values and returns it.
-func NewUserDB() UserDB {
-	return UserDB{User{}, make(map[string]*User)}
+func NewUserDB() *UserDB {
+	return &UserDB{User{}, make(map[string]*User)}
 }
 
 // NewUser creates a User with the given name and last name and returns it.

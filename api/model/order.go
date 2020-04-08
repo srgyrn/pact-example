@@ -33,6 +33,14 @@ type OrderDB struct {
 	db  map[string]*Order
 }
 
+// NewOrderDB creates and returns OrderDB struct
+func NewOrderDB() *OrderDB {
+	return &OrderDB{
+		Ord: Order{},
+		db:  make(map[string]*Order),
+	}
+}
+
 // AddToDB adds the order given to the DB.
 // An error is thrown in the following circumstances:
 //		- the payment way has not been set

@@ -35,8 +35,8 @@ func NewVoucher(balance float32, userKey string) (Voucher, error) {
 }
 
 // NewVoucherDB creates a VoucherDB struct with empty initial values and returns it.
-func NewVoucherDB() VoucherDB {
-	return VoucherDB{Voucher{}, make(map[string]*Voucher)}
+func NewVoucherDB() *VoucherDB {
+	return &VoucherDB{Voucher{}, make(map[string]*Voucher)}
 }
 
 // AddToDB adds given voucher account to DB

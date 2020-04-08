@@ -52,7 +52,7 @@ func TestNewUser(t *testing.T) {
 
 func TestNewUserDB(t *testing.T) {
 	got := NewUserDB()
-	want := UserDB{User{}, make(map[string]*User)}
+	want := &UserDB{User{}, make(map[string]*User)}
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("NewUserDB() = %v, want %v", got, want)

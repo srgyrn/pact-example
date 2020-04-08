@@ -54,7 +54,7 @@ func TestNewVoucher(t *testing.T) {
 }
 
 func TestNewVoucherDB(t *testing.T) {
-	want := VoucherDB{
+	want := &VoucherDB{
 		Account: Voucher{},
 		db:      make(map[string]*Voucher),
 	}
