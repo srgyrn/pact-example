@@ -217,7 +217,7 @@ func TestUserDB_Find(t *testing.T) {
 	}
 }
 
-func ExampleUserDB_AddBalance() {
+func ExampleUserDB_UpdateBalance() {
 	udb := NewUserDB()
 	udb.Usr, _ = NewUser("Jane", "Doe")
 	err := udb.AddToDB()
@@ -226,7 +226,8 @@ func ExampleUserDB_AddBalance() {
 		return
 	}
 
-	got, _ := udb.AddBalance(5.95)
+	got, _ := udb.UpdateBalance(5.95)
+
 	fmt.Printf("%.2f", got)
 
 	// Output:

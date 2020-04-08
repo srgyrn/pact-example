@@ -42,13 +42,14 @@ func NewUser(name, lastName string) (User, error) {
 // UpdateBalance function adds the given balance to the given user in UserDB struct.
 func (udb *UserDB) UpdateBalance(balance float32) (float32, error) {
 	key := generateKeyForUser(&udb.Usr)
-	if usr, ok := udb.db[key]; ok {
-		usr.Balance = usr.Balance + balance
-
-		return usr.Balance, nil
+	if _, ok := udb.db[key]; !ok {
+		return 0, errors.New("user not found")
 	}
 
-	return 0, errors.New("user not found")
+	usr := udb.db[key]
+	usr.Balance = usr.Balance + balance
+
+	return usr.Balance, nil
 }
 
 // AddToDB function adds user in UserDB to the DB.
