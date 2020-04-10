@@ -10,8 +10,8 @@ const DefaultCurrency = "USD"
 
 // Voucher holds data about the voucher account of user
 type Voucher struct {
-	Balance  float32
-	Currency string
+	Balance  float32 `json:Balance`
+	Currency string  `json:Currency`
 	userKey  string
 }
 

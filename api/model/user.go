@@ -7,9 +7,9 @@ import (
 
 // User holds every data related to a user
 type User struct {
-	Name     string
-	LastName string
-	Balance  float32 // Current balance of the user
+	Name     string  `json:Name`
+	LastName string  `json:LastName`
+	Balance  float32 `json:Balance` // Current balance of the user
 	Orders   []int   // Orders of the user
 }
 

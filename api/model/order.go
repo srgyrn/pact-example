@@ -20,11 +20,11 @@ const (
 
 // Order holds every detail related to an order
 type Order struct {
-	ID                  int
-	Total               float32
-	PaymentWay          int
-	ShippingCountryZone int
-	IsDeleted           bool
+	ID                  int     `json:ID`
+	Total               float32 `json:Total`
+	PaymentWay          int     `json:PaymentWay`
+	ShippingCountryZone int     `json:CountryZone`
+	IsDeleted           bool    `json:IsDeleted`
 }
 
 // OrderDB holds the needed data for every DB operation to run
