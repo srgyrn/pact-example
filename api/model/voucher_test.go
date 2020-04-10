@@ -54,20 +54,20 @@ func TestNewVoucher(t *testing.T) {
 }
 
 func TestNewVoucherDB(t *testing.T) {
-	want := &VoucherDB{
-		Account: Voucher{},
+	want := &VoucherHandler{
+		Account: nil,
 		db:      make(map[string]*Voucher),
 	}
-	got := NewVoucherDB()
+	got := NewVoucherHandler()
 
 	if !reflect.DeepEqual(want, got) {
-		t.Errorf("NewVoucherDB failed. got: %v, want: %v", got, want)
+		t.Errorf("NewVoucherHandler failed. got: %v, want: %v", got, want)
 	}
 }
 
 func TestVoucherDB_AddToDB(t *testing.T) {
 	type fields struct {
-		V  Voucher
+		V  *Voucher
 		db map[string]*Voucher
 	}
 
@@ -81,7 +81,7 @@ func TestVoucherDB_AddToDB(t *testing.T) {
 		{
 			name: "fails when currency is other than the default currency",
 			fields: fields{
-				V: Voucher{
+				V: &Voucher{
 					Balance:  150,
 					Currency: "EUR",
 					userKey:  "eric-smith",
@@ -93,7 +93,7 @@ func TestVoucherDB_AddToDB(t *testing.T) {
 		{
 			name: "adds new voucher account successfully",
 			fields: fields{
-				V: Voucher{
+				V: &Voucher{
 					Balance:  150,
 					Currency: "USD",
 					userKey:  "eric-smith",
@@ -105,7 +105,7 @@ func TestVoucherDB_AddToDB(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := &VoucherDB{
+			v := &VoucherHandler{
 				Account: tt.fields.V,
 				db:      tt.fields.db,
 			}
@@ -118,7 +118,7 @@ func TestVoucherDB_AddToDB(t *testing.T) {
 
 func TestVoucherDB_Delete(t *testing.T) {
 	type fields struct {
-		V  Voucher
+		V  *Voucher
 		db map[string]*Voucher
 	}
 
@@ -131,7 +131,7 @@ func TestVoucherDB_Delete(t *testing.T) {
 		{
 			name: "returns false when account is not found",
 			fields: fields{
-				V:  Voucher{},
+				V:  nil,
 				db: getVoucherTestDB(),
 			},
 			key:  "qwerty",
@@ -140,7 +140,7 @@ func TestVoucherDB_Delete(t *testing.T) {
 		{
 			name: "removes account successfully",
 			fields: fields{
-				V:  Voucher{},
+				V:  nil,
 				db: getVoucherTestDB(),
 			},
 			key:  "john-doe-usd",
@@ -149,7 +149,7 @@ func TestVoucherDB_Delete(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := &VoucherDB{
+			v := &VoucherHandler{
 				Account: tt.fields.V,
 				db:      tt.fields.db,
 			}
@@ -168,7 +168,7 @@ func TestVoucherDB_Delete(t *testing.T) {
 
 func TestVoucherDB_Find(t *testing.T) {
 	type fields struct {
-		V  Voucher
+		V  *Voucher
 		db map[string]*Voucher
 	}
 
@@ -184,7 +184,7 @@ func TestVoucherDB_Find(t *testing.T) {
 		{
 			name: "returns error when key is empty",
 			fields: fields{
-				V:  Voucher{},
+				V:  nil,
 				db: testDB,
 			},
 			key:     "",
@@ -194,7 +194,7 @@ func TestVoucherDB_Find(t *testing.T) {
 		{
 			name: "returns error when key is a single space",
 			fields: fields{
-				V:  Voucher{},
+				V:  nil,
 				db: testDB,
 			},
 			key:     " ",
@@ -204,7 +204,7 @@ func TestVoucherDB_Find(t *testing.T) {
 		{
 			name: "returns error when key is not found",
 			fields: fields{
-				V:  Voucher{},
+				V:  nil,
 				db: testDB,
 			},
 			key:     "test-user",
@@ -214,7 +214,7 @@ func TestVoucherDB_Find(t *testing.T) {
 		{
 			name: "finds voucher account successfully",
 			fields: fields{
-				V:  Voucher{},
+				V:  nil,
 				db: testDB,
 			},
 			key: "john-doe-usd",
@@ -228,7 +228,7 @@ func TestVoucherDB_Find(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := &VoucherDB{
+			v := &VoucherHandler{
 				Account: tt.fields.V,
 				db:      tt.fields.db,
 			}
@@ -244,9 +244,9 @@ func TestVoucherDB_Find(t *testing.T) {
 	}
 }
 
-func TestVoucherDB_UpdateBalance(t *testing.T) {
-	vdb := VoucherDB{
-		Account: Voucher{
+func TestVoucher_UpdateBalance(t *testing.T) {
+	vdb := VoucherHandler{
+		Account: &Voucher{
 			Balance:  100,
 			Currency: DefaultCurrency,
 			userKey:  "jane-doe",

@@ -15,9 +15,9 @@ type Voucher struct {
 	userKey  string
 }
 
-// VoucherDB holds the needed data for every DB operation to run
-type VoucherDB struct {
-	Account Voucher // Voucher account information
+// VoucherHandler holds the needed data for every DB operation to run
+type VoucherHandler struct {
+	Account *Voucher // Voucher account information
 	db      map[string]*Voucher
 }
 
@@ -34,26 +34,26 @@ func NewVoucher(balance float32, userKey string) (Voucher, error) {
 	}, nil
 }
 
-// NewVoucherDB creates a VoucherDB struct with empty initial values and returns it.
-func NewVoucherDB() *VoucherDB {
-	return &VoucherDB{Voucher{}, make(map[string]*Voucher)}
+// NewVoucherHandler creates a VoucherHandler struct with empty initial values and returns it.
+func NewVoucherHandler() *VoucherHandler {
+	return &VoucherHandler{nil, make(map[string]*Voucher)}
 }
 
 // AddToDB adds given voucher account to DB
-func (v *VoucherDB) AddToDB() error {
+func (v *VoucherHandler) AddToDB() error {
 	if v.Account.Currency != DefaultCurrency {
 		return errors.New("wrong currency given")
 	}
 
 	key := generateKeyForVoucher(v.Account.userKey)
-	v.db[key] = &v.Account
+	v.db[key] = v.Account
 
 	return nil
 }
 
 // Find looks for the given key in DB and returns it if it exists.
 // If key is not provided or not found, function returns an error.
-func (v *VoucherDB) Find(key string) (interface{}, error) {
+func (v *VoucherHandler) Find(key string) (interface{}, error) {
 	if len(strings.TrimSpace(key)) == 0 {
 		return nil, errors.New("key cannot be empty")
 	}
@@ -66,7 +66,7 @@ func (v *VoucherDB) Find(key string) (interface{}, error) {
 }
 
 // Delete removes the given key from DB
-func (v *VoucherDB) Delete(key string) bool {
+func (v *VoucherHandler) Delete(key string) bool {
 	if _, ok := v.db[key]; ok {
 		delete(v.db, key)
 		return true
@@ -76,7 +76,7 @@ func (v *VoucherDB) Delete(key string) bool {
 }
 
 // UpdateBalance updates the balance of the given voucher account
-func (v *VoucherDB) UpdateBalance(amount float32) (float32, error) {
+func (v *VoucherHandler) UpdateBalance(amount float32) (float32, error) {
 	key := generateKeyForVoucher(v.Account.userKey)
 
 	if _, ok := v.db[key]; !ok {

@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-func TestOrderDB_AddToDB(t *testing.T) {
+func TestOrderHandler_AddToDB(t *testing.T) {
 	type fields struct {
-		Ord Order
+		Ord *Order
 		db  map[string]*Order
 	}
 
@@ -21,7 +21,7 @@ func TestOrderDB_AddToDB(t *testing.T) {
 		{
 			name: "fails when payment way is missing",
 			fields: fields{
-				Ord: Order{
+				Ord: &Order{
 					ID:                  5,
 					Total:               200,
 					PaymentWay:          0,
@@ -35,7 +35,7 @@ func TestOrderDB_AddToDB(t *testing.T) {
 		{
 			name: "fails when country zone is missing",
 			fields: fields{
-				Ord: Order{
+				Ord: &Order{
 					ID:                  5,
 					Total:               200,
 					PaymentWay:          CreditCard,
@@ -49,7 +49,7 @@ func TestOrderDB_AddToDB(t *testing.T) {
 		{
 			name: "adds order successfully",
 			fields: fields{
-				Ord: Order{
+				Ord: &Order{
 					ID:                  5,
 					Total:               200,
 					PaymentWay:          CreditCard,
@@ -63,7 +63,7 @@ func TestOrderDB_AddToDB(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			o := &OrderDB{
+			o := &OrderHandler{
 				Ord: tt.fields.Ord,
 				db:  tt.fields.db,
 			}
@@ -72,7 +72,7 @@ func TestOrderDB_AddToDB(t *testing.T) {
 			}
 
 			want := getOrderTestDb()
-			want[string(len(want)+1)] = &tt.fields.Ord
+			want[string(len(want)+1)] = tt.fields.Ord
 
 			if !tt.wantErr && !reflect.DeepEqual(want, tt.fields.db) {
 				t.Errorf("AddToDB failed, want: %v, got: %v", want, tt.fields.db)
@@ -81,9 +81,9 @@ func TestOrderDB_AddToDB(t *testing.T) {
 	}
 }
 
-func TestOrderDB_Delete(t *testing.T) {
+func TestOrderHandler_Delete(t *testing.T) {
 	type fields struct {
-		Ord Order
+		Ord *Order
 		db  map[string]*Order
 	}
 
@@ -96,7 +96,7 @@ func TestOrderDB_Delete(t *testing.T) {
 		{
 			name: "return false when order not found",
 			fields: fields{
-				Ord: Order{},
+				Ord: &Order{},
 				db:  getOrderTestDb(),
 			},
 			key:  "1000",
@@ -105,7 +105,7 @@ func TestOrderDB_Delete(t *testing.T) {
 		{
 			name: "returns true when order is found",
 			fields: fields{
-				Ord: Order{},
+				Ord: &Order{},
 				db:  getOrderTestDb(),
 			},
 			key:  "1",
@@ -114,7 +114,7 @@ func TestOrderDB_Delete(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			o := &OrderDB{
+			o := &OrderHandler{
 				Ord: tt.fields.Ord,
 				db:  tt.fields.db,
 			}
@@ -131,9 +131,9 @@ func TestOrderDB_Delete(t *testing.T) {
 	}
 }
 
-func TestOrderDB_Find(t *testing.T) {
+func TestOrderHandler_Find(t *testing.T) {
 	type fields struct {
-		Ord Order
+		Ord *Order
 		db  map[string]*Order
 	}
 
@@ -149,7 +149,7 @@ func TestOrderDB_Find(t *testing.T) {
 		{
 			name: "fails when key is not found",
 			fields: fields{
-				Ord: Order{},
+				Ord: nil,
 				db:  testDB,
 			},
 			key:     "1000",
@@ -159,11 +159,11 @@ func TestOrderDB_Find(t *testing.T) {
 		{
 			name: "returns order when found",
 			fields: fields{
-				Ord: Order{},
+				Ord: nil,
 				db:  testDB,
 			},
 			key: "1",
-			want: Order{
+			want: &Order{
 				ID:                  1,
 				Total:               100,
 				PaymentWay:          CreditCard,
@@ -175,7 +175,7 @@ func TestOrderDB_Find(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			o := &OrderDB{
+			o := &OrderHandler{
 				Ord: tt.fields.Ord,
 				db:  tt.fields.db,
 			}

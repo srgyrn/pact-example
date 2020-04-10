@@ -14,25 +14,25 @@ func TestNewUser(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    User
+		want    *User
 		wantErr bool
 	}{
 		{
 			name:    "creates user",
 			args:    args{"Eric", "Smith"},
-			want:    User{"Eric", "Smith", 0, nil},
+			want:    &User{"Eric", "Smith", 0, nil},
 			wantErr: false,
 		},
 		{
 			name:    "fails when name is empty",
 			args:    args{"", "smith"},
-			want:    User{},
+			want:    nil,
 			wantErr: true,
 		},
 		{
 			name:    "fails when last name is empty",
 			args:    args{"eric", ""},
-			want:    User{},
+			want:    nil,
 			wantErr: true,
 		},
 	}
@@ -50,18 +50,18 @@ func TestNewUser(t *testing.T) {
 	}
 }
 
-func TestNewUserDB(t *testing.T) {
-	got := NewUserDB()
-	want := &UserDB{User{}, make(map[string]*User)}
+func TestNewUserHandler(t *testing.T) {
+	got := NewUserHandler()
+	want := &UserHandler{nil, make(map[string]*User)}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("NewUserDB() = %v, want %v", got, want)
+		t.Errorf("NewUserHandler() = %v, want %v", got, want)
 	}
 }
 
-func TestUserDB_AddToDB(t *testing.T) {
+func TestUserHandler_AddToDB(t *testing.T) {
 	type fields struct {
-		Usr User
+		Usr *User
 		db  map[string]*User
 	}
 
@@ -75,7 +75,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 		{
 			name: "fails when user exists",
 			fields: fields{
-				User{"john", "doe", 100, nil},
+				&User{"john", "doe", 100, nil},
 				testDb,
 			},
 			wantErr: true,
@@ -83,7 +83,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 		{
 			name: "fails when user name is empty",
 			fields: fields{
-				User{"", "doe", 100, nil},
+				&User{"", "doe", 100, nil},
 				testDb,
 			},
 			wantErr: true,
@@ -91,7 +91,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 		{
 			name: "fails when user last name is empty",
 			fields: fields{
-				User{"jane", "", 100, nil},
+				&User{"jane", "", 100, nil},
 				testDb,
 			},
 			wantErr: true,
@@ -99,7 +99,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 		{
 			name: "adds user to db successfully",
 			fields: fields{
-				User{"Eric", "Smith", 100, []int{7, 8, 9}},
+				&User{"Eric", "Smith", 100, []int{7, 8, 9}},
 				testDb,
 			},
 			wantErr: false,
@@ -107,7 +107,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			udb := &UserDB{
+			udb := &UserHandler{
 				Usr: tt.fields.Usr,
 				db:  tt.fields.db,
 			}
@@ -116,7 +116,7 @@ func TestUserDB_AddToDB(t *testing.T) {
 			}
 
 			want := getUserTestDb()
-			want[generateKeyForUser(&tt.fields.Usr)] = &tt.fields.Usr
+			want[generateKeyForUser(tt.fields.Usr)] = tt.fields.Usr
 
 			if !tt.wantErr && !reflect.DeepEqual(want, tt.fields.db) {
 				t.Errorf("AddToDB() failed. want: %v, got: %v", want, testDb)
@@ -125,9 +125,9 @@ func TestUserDB_AddToDB(t *testing.T) {
 	}
 }
 
-func TestUserDB_Delete(t *testing.T) {
+func TestUserHandler_Delete(t *testing.T) {
 	type fields struct {
-		Usr User
+		Usr *User
 		db  map[string]*User
 	}
 
@@ -142,7 +142,7 @@ func TestUserDB_Delete(t *testing.T) {
 		{
 			name: "returns false when user not found",
 			fields: fields{
-				User{},
+				nil,
 				testDb,
 			},
 			key:  "qwerty",
@@ -151,7 +151,7 @@ func TestUserDB_Delete(t *testing.T) {
 		{
 			name: "returns true when user found",
 			fields: fields{
-				User{},
+				nil,
 				testDb,
 			},
 			key:  "jane-doe",
@@ -160,7 +160,7 @@ func TestUserDB_Delete(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			udb := &UserDB{
+			udb := &UserHandler{
 				Usr: tt.fields.Usr,
 				db:  tt.fields.db,
 			}
@@ -171,9 +171,9 @@ func TestUserDB_Delete(t *testing.T) {
 	}
 }
 
-func TestUserDB_Find(t *testing.T) {
+func TestUserHandler_Find(t *testing.T) {
 	type fields struct {
-		Usr User
+		Usr *User
 		db  map[string]*User
 	}
 
@@ -186,14 +186,14 @@ func TestUserDB_Find(t *testing.T) {
 	}{
 		{
 			name:    "finds user successfully",
-			fields:  fields{User{}, getUserTestDb()},
+			fields:  fields{nil, getUserTestDb()},
 			key:     "john-doe",
 			want:    &User{"John", "Doe", 100, nil},
 			wantErr: false,
 		},
 		{
 			name:    "fails when user does not exist",
-			fields:  fields{User{}, getUserTestDb()},
+			fields:  fields{nil, getUserTestDb()},
 			key:     "eric-smith",
 			want:    nil,
 			wantErr: true,
@@ -201,7 +201,7 @@ func TestUserDB_Find(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			udb := &UserDB{
+			udb := &UserHandler{
 				Usr: tt.fields.Usr,
 				db:  tt.fields.db,
 			}
@@ -217,16 +217,9 @@ func TestUserDB_Find(t *testing.T) {
 	}
 }
 
-func ExampleUserDB_UpdateBalance() {
-	udb := NewUserDB()
-	udb.Usr, _ = NewUser("Jane", "Doe")
-	err := udb.AddToDB()
-
-	if err != nil {
-		return
-	}
-
-	got, _ := udb.UpdateBalance(5.95)
+func ExampleUser_UpdateBalance() {
+	usr, _ := NewUser("Jane", "Doe")
+	got, _ := usr.UpdateBalance(5.95)
 
 	fmt.Printf("%.2f", got)
 

@@ -27,16 +27,16 @@ type Order struct {
 	IsDeleted           bool    `json:IsDeleted`
 }
 
-// OrderDB holds the needed data for every DB operation to run
-type OrderDB struct {
-	Ord Order
+// OrderHandler holds the needed data for every DB operation to run
+type OrderHandler struct {
+	Ord *Order
 	db  map[string]*Order
 }
 
-// NewOrderDB creates and returns OrderDB struct
-func NewOrderDB() *OrderDB {
-	return &OrderDB{
-		Ord: Order{},
+// NewOrderDB creates and returns OrderHandler struct
+func NewOrderDB() *OrderHandler {
+	return &OrderHandler{
+		Ord: nil,
 		db:  make(map[string]*Order),
 	}
 }
@@ -45,7 +45,7 @@ func NewOrderDB() *OrderDB {
 // An error is thrown in the following circumstances:
 //		- the payment way has not been set
 //		- the country zone has not been set
-func (o *OrderDB) AddToDB() error {
+func (o *OrderHandler) AddToDB() error {
 	if o.Ord.PaymentWay == 0 {
 		return errors.New("payment way is missing")
 	}
@@ -55,23 +55,23 @@ func (o *OrderDB) AddToDB() error {
 	}
 
 	key := string(len(o.db) + 1)
-	o.db[key] = &o.Ord
+	o.db[key] = o.Ord
 
 	return nil
 }
 
 // Find function finds the order from db and returns it.
 // An error is returned if key does not exist in DB map.
-func (o *OrderDB) Find(key string) (interface{}, error) {
+func (o *OrderHandler) Find(key string) (interface{}, error) {
 	if _, ok := o.db[key]; !ok {
 		return nil, errors.New("order not found")
 	}
 
-	return *o.db[key], nil
+	return o.db[key], nil
 }
 
 // Delete function removes the order associated with the key in parameter from the DB.
-func (o *OrderDB) Delete(key string) bool {
+func (o *OrderHandler) Delete(key string) bool {
 	if _, ok := o.db[key]; ok {
 		ord := o.db[key]
 		ord.IsDeleted = true

@@ -13,65 +13,56 @@ type User struct {
 	Orders   []int   // Orders of the user
 }
 
-// UserDB holds the needed data for every DB operation to run
-type UserDB struct {
-	Usr User             // user whom the operations will be on
+// UserHandler holds the needed data for every DB operation to run
+type UserHandler struct {
+	Usr *User            // user whom the operations will be on
 	db  map[string]*User // holds every User created
 }
 
-// NewUserDB creates a UserDB struct with empty initial values and returns it.
-func NewUserDB() *UserDB {
-	return &UserDB{User{}, make(map[string]*User)}
+// NewUserHandler creates a UserDB struct with empty initial values and returns it.
+func NewUserHandler() *UserHandler {
+	return &UserHandler{nil, make(map[string]*User)}
 }
 
 // NewUser creates a User with the given name and last name and returns it.
 // Every other data other than name and last name are set to their initial values.
-func NewUser(name, lastName string) (User, error) {
-	var u User
-
+func NewUser(name, lastName string) (*User, error) {
 	if err := checkName(name, lastName); err != nil {
-		return u, err
+		return nil, err
 	}
 
-	u.Name = name
-	u.LastName = lastName
-
-	return u, nil
+	return &User{
+		Name:     name,
+		LastName: lastName,
+	}, nil
 }
 
 // UpdateBalance function adds the given balance to the given user in UserDB struct.
-func (udb *UserDB) UpdateBalance(balance float32) (float32, error) {
-	key := generateKeyForUser(&udb.Usr)
-	if _, ok := udb.db[key]; !ok {
-		return 0, errors.New("user not found")
-	}
-
-	usr := udb.db[key]
-	usr.Balance = usr.Balance + balance
-
-	return usr.Balance, nil
+func (u *User) UpdateBalance(balance float32) (float32, error) {
+	u.Balance = u.Balance + balance
+	return u.Balance, nil
 }
 
 // AddToDB function adds user in UserDB to the DB.
-func (udb *UserDB) AddToDB() error {
-	if err := checkName(udb.Usr.Name, udb.Usr.LastName); err != nil {
+func (uh *UserHandler) AddToDB() error {
+	if err := checkName(uh.Usr.Name, uh.Usr.LastName); err != nil {
 		return err
 	}
 
-	key := generateKeyForUser(&udb.Usr)
-	if _, ok := udb.db[key]; ok {
+	key := generateKeyForUser(uh.Usr)
+	if _, ok := uh.db[key]; ok {
 		return errors.New("user already exists")
 	}
 
-	udb.db[key] = &udb.Usr
+	uh.db[key] = uh.Usr
 
 	return nil
 }
 
 // Find function finds the user from db and returns it.
 // An error is returned if key does not exist in DB map.
-func (udb *UserDB) Find(key string) (interface{}, error) {
-	if usr, ok := udb.db[key]; ok {
+func (uh *UserHandler) Find(key string) (interface{}, error) {
+	if usr, ok := uh.db[key]; ok {
 		return usr, nil
 	}
 
@@ -79,9 +70,9 @@ func (udb *UserDB) Find(key string) (interface{}, error) {
 }
 
 // Delete function removes the user associated with the key in parameter from the DB.
-func (udb *UserDB) Delete(key string) bool {
-	if _, ok := udb.db[key]; ok {
-		delete(udb.db, key)
+func (uh *UserHandler) Delete(key string) bool {
+	if _, ok := uh.db[key]; ok {
+		delete(uh.db, key)
 		return true
 	}
 
