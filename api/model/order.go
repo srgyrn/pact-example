@@ -1,7 +1,9 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 )
 
 // Payment type IDs
@@ -39,6 +41,15 @@ func NewOrderDB() *OrderHandler {
 		Ord: nil,
 		db:  make(map[string]*Order),
 	}
+}
+
+func (o *OrderHandler) BulkInsert(b []byte) error {
+	err := json.Unmarshal(b, &o.db)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal\n%s", err)
+	}
+
+	return nil
 }
 
 // AddToDB adds the order given to the DB.

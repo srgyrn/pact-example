@@ -1,0 +1,30 @@
+{
+  "jane-doe": {
+    "Name": "Jane",
+    "LastName": "Doe",
+    "Balance": 100.0,
+    "Orders": [
+      1,
+      2,
+      3,
+      7
+    ]
+  },
+  "john-doe": {
+    "Name": "John",
+    "LastName": "Doe",
+    "Balance": 50.0,
+    "Orders": [
+      4,
+      5
+    ]
+  },
+  "bruce-wayne": {
+    "Name": "Bruce",
+    "LastName": "Wayne",
+    "Balance": 999999999999999.999,
+    "Orders": [
+      6
+    ]
+  }
+}

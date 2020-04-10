@@ -1,7 +1,9 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -35,6 +37,15 @@ func NewUser(name, lastName string) (*User, error) {
 		Name:     name,
 		LastName: lastName,
 	}, nil
+}
+
+func (uh *UserHandler) BulkInsert(b []byte) error {
+	err := json.Unmarshal(b, &uh.db)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal\n%s", err)
+	}
+
+	return nil
 }
 
 // UpdateBalance function adds the given balance to the given user in UserDB struct.
