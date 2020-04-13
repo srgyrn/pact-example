@@ -1,3 +1,8 @@
+## Vendoring:
+Go'nun official tool'u olan modules kullanilacak. 
+
+    $ go mod vendor
+
 ## Onerilen tool'lar:
     - golint: Formatlama icin
 
