@@ -72,12 +72,13 @@ func (uh *UserHandler) AddToDB() error {
 
 // Find function finds the user from db and returns it.
 // An error is returned if key does not exist in DB map.
-func (uh *UserHandler) Find(key string) (interface{}, error) {
+func (uh *UserHandler) Find(key string) error {
 	if usr, ok := uh.db[key]; ok {
-		return usr, nil
+		uh.Usr = usr
+		return nil
 	}
 
-	return nil, errors.New("user not found")
+	return errors.New("user not found")
 }
 
 // Delete function removes the user associated with the key in parameter from the DB.

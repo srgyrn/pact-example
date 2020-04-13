@@ -143,7 +143,7 @@ func TestOrderHandler_Find(t *testing.T) {
 		name    string
 		fields  fields
 		key     string
-		want    interface{}
+		want    *Order
 		wantErr bool
 	}{
 		{
@@ -179,7 +179,8 @@ func TestOrderHandler_Find(t *testing.T) {
 				Ord: tt.fields.Ord,
 				db:  tt.fields.db,
 			}
-			got, err := o.Find(tt.key)
+			err := o.Find(tt.key)
+			got := o.Ord
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Find() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -35,8 +35,8 @@ type OrderHandler struct {
 	db  map[string]*Order
 }
 
-// NewOrderDB creates and returns OrderHandler struct
-func NewOrderDB() *OrderHandler {
+// NewOrderHandler creates and returns OrderHandler struct
+func NewOrderHandler() *OrderHandler {
 	return &OrderHandler{
 		Ord: nil,
 		db:  make(map[string]*Order),
@@ -71,14 +71,16 @@ func (o *OrderHandler) AddToDB() error {
 	return nil
 }
 
-// Find function finds the order from db and returns it.
+// Find function finds the order from db.
 // An error is returned if key does not exist in DB map.
-func (o *OrderHandler) Find(key string) (interface{}, error) {
+func (o *OrderHandler) Find(key string) error {
 	if _, ok := o.db[key]; !ok {
-		return nil, errors.New("order not found")
+		return errors.New("order not found")
 	}
 
-	return o.db[key], nil
+	o.Ord = o.db[key]
+
+	return nil
 }
 
 // Delete function removes the order associated with the key in parameter from the DB.

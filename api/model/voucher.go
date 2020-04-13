@@ -53,16 +53,17 @@ func (v *VoucherHandler) AddToDB() error {
 
 // Find looks for the given key in DB and returns it if it exists.
 // If key is not provided or not found, function returns an error.
-func (v *VoucherHandler) Find(key string) (interface{}, error) {
+func (v *VoucherHandler) Find(key string) error {
 	if len(strings.TrimSpace(key)) == 0 {
-		return nil, errors.New("key cannot be empty")
+		return errors.New("key cannot be empty")
 	}
 
 	if account, ok := v.db[key]; ok {
-		return account, nil
+		v.Account = account
+		return nil
 	}
 
-	return nil, errors.New("account not found")
+	return errors.New("account not found")
 }
 
 // Delete removes the given key from DB

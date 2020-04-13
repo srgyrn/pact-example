@@ -181,7 +181,7 @@ func TestUserHandler_Find(t *testing.T) {
 		name    string
 		fields  fields
 		key     string
-		want    interface{}
+		want    *User
 		wantErr bool
 	}{
 		{
@@ -205,11 +205,12 @@ func TestUserHandler_Find(t *testing.T) {
 				Usr: tt.fields.Usr,
 				db:  tt.fields.db,
 			}
-			got, err := udb.Find(tt.key)
+			err := udb.Find(tt.key)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Find() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			got := udb.Usr
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Find() got = %v, want %v", got, tt.want)
 			}

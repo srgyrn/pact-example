@@ -178,7 +178,7 @@ func TestVoucherDB_Find(t *testing.T) {
 		name    string
 		fields  fields
 		key     string
-		want    interface{}
+		want    *Voucher
 		wantErr bool
 	}{
 		{
@@ -232,11 +232,12 @@ func TestVoucherDB_Find(t *testing.T) {
 				Account: tt.fields.V,
 				db:      tt.fields.db,
 			}
-			got, err := v.Find(tt.key)
+			err := v.Find(tt.key)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Find() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			got := v.Account
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Find() got = %v, want %v", got, tt.want)
 			}
