@@ -1,15 +1,21 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"github.com/srgyrn/pact-example/api/model"
 	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
+	"strings"
 )
 
 type DBGateway interface {
 	AddToDB() error
-	Find(key string) (interface{}, error)
+	Find(key string) error
 	Delete(key string) bool
 }
 
@@ -29,31 +35,109 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	router := httprouter.New()
+	router.POST("/order/:orderID/refund/", refundHandler)
+
+	log.Fatal(http.ListenAndServe(":8090", router))
 }
 
-func refundOrder() {
+func refundHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)  {
+	oid := ps.ByName("orderID")
+	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
 
+	postBody := struct {
+		UserKey string `json:"user_key"`
+	}{}
+	json.Unmarshal(body, &postBody)
+
+	if len(strings.TrimSpace(postBody.UserKey)) == 0 {
+		//http.Error(w, string(body), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("%v \n %v", string(body), postBody.UserKey), http.StatusBadRequest)
+		return
+	}
+
+	err := makeRefund(postBody.UserKey, oid)
+	if !errors.Is(err, nil) {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err = json.NewEncoder(w).Encode(&postBody); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
+
+func makeRefund(userKey, orderID string) error {
+	err := dbs.usr.Find(userKey)
+	if !errors.Is(err, nil) {
+		return fmt.Errorf("user not found: %s", userKey)
+	}
+
+	err = dbs.ord.Find(orderID)
+	if !errors.Is(err, nil) {
+		return fmt.Errorf("order not found")
+	}
+
+	order := dbs.ord.Ord
+
+	if order.IsDeleted {
+		return fmt.Errorf("order already refunded")
+	}
+
+	order.IsDeleted = true
+
+	refundToVoucher := false
+	if order.ShippingCountryZone == model.ZoneMena && order.PaymentWay == model.CashOnDelivery {
+		refundToVoucher = true
+	}
+
+	user := dbs.usr.Usr
+
+	if !refundToVoucher {
+		user.UpdateBalance(order.Total)
+		return nil
+	}
+
+	err = dbs.vch.Find(model.GenerateKeyForVoucher(userKey))
+
+	if err != nil && dbs.vch.Account == nil {
+		va, err := model.NewVoucher(order.Total, model.GenerateKeyForUser(user))
+
+		if !errors.Is(err, nil) {
+			return err
+		}
+
+		dbs.vch.Account = &va
+		err = dbs.vch.AddToDB()
+
+		return nil
+	}
+
+	dbs.vch.UpdateBalance(order.Total)
+	return nil
+}
+
 
 func initDBs() error {
 	dbs.vch = model.NewVoucherHandler()
 	dbs.usr = model.NewUserHandler()
-	dbs.ord = model.NewOrderDB()
+	dbs.ord = model.NewOrderHandler()
 
-	userJson, err := openDataFile("users")
+	userJSON, err := openDataFile("users")
 	if err != nil {
 		return err
 	}
 
-	orderJson, err := openDataFile("orders")
+	orderJSON, err := openDataFile("orders")
 	if err != nil {
 		return err
 	}
 
-	dbs.usr.BulkInsert(userJson)
-	dbs.ord.BulkInsert(orderJson)
-
-	fmt.Println(dbs.usr, dbs.ord)
+	dbs.usr.BulkInsert(userJSON)
+	dbs.ord.BulkInsert(orderJSON)
 
 	return nil
 }

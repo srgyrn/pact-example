@@ -2,6 +2,7 @@ package model
 
 import (
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -72,7 +73,7 @@ func TestOrderHandler_AddToDB(t *testing.T) {
 			}
 
 			want := getOrderTestDb()
-			want[string(len(want)+1)] = tt.fields.Ord
+			want[strconv.Itoa(len(want)+1)] = tt.fields.Ord
 
 			if !tt.wantErr && !reflect.DeepEqual(want, tt.fields.db) {
 				t.Errorf("AddToDB failed, want: %v, got: %v", want, tt.fields.db)

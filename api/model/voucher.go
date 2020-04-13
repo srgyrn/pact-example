@@ -10,8 +10,8 @@ const DefaultCurrency = "USD"
 
 // Voucher holds data about the voucher account of user
 type Voucher struct {
-	Balance  float32 `json:Balance`
-	Currency string  `json:Currency`
+	Balance  float32 `json:"Balance"`
+	Currency string  `json:"Currency"`
 	userKey  string
 }
 
@@ -45,7 +45,7 @@ func (v *VoucherHandler) AddToDB() error {
 		return errors.New("wrong currency given")
 	}
 
-	key := generateKeyForVoucher(v.Account.userKey)
+	key := GenerateKeyForVoucher(v.Account.userKey)
 	v.db[key] = v.Account
 
 	return nil
@@ -63,6 +63,7 @@ func (v *VoucherHandler) Find(key string) error {
 		return nil
 	}
 
+	v.Account = nil
 	return errors.New("account not found")
 }
 
@@ -78,7 +79,7 @@ func (v *VoucherHandler) Delete(key string) bool {
 
 // UpdateBalance updates the balance of the given voucher account
 func (v *VoucherHandler) UpdateBalance(amount float32) (float32, error) {
-	key := generateKeyForVoucher(v.Account.userKey)
+	key := GenerateKeyForVoucher(v.Account.userKey)
 
 	if _, ok := v.db[key]; !ok {
 		return 0, errors.New("account not found in DB")
@@ -89,6 +90,7 @@ func (v *VoucherHandler) UpdateBalance(amount float32) (float32, error) {
 	return va.Balance, nil
 }
 
-func generateKeyForVoucher(userKey string) string {
+// GenerateKeyForVoucher is a helper function that creates the key for the voucher account
+func GenerateKeyForVoucher(userKey string) string {
 	return userKey + "-" + strings.ToLower(DefaultCurrency)
 }

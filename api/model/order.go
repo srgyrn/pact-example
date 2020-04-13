@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 )
 
 // Payment type IDs
@@ -22,11 +23,11 @@ const (
 
 // Order holds every detail related to an order
 type Order struct {
-	ID                  int     `json:ID`
-	Total               float32 `json:Total`
-	PaymentWay          int     `json:PaymentWay`
-	ShippingCountryZone int     `json:CountryZone`
-	IsDeleted           bool    `json:IsDeleted`
+	ID                  int     `json:"ID"`
+	Total               float32 `json:"Total"`
+	PaymentWay          int     `json:"PaymentWay"`
+	ShippingCountryZone int     `json:"CountryZone"`
+	IsDeleted           bool    `json:"IsDeleted"`
 }
 
 // OrderHandler holds the needed data for every DB operation to run
@@ -65,7 +66,7 @@ func (o *OrderHandler) AddToDB() error {
 		return errors.New("zone is missing")
 	}
 
-	key := string(len(o.db) + 1)
+	key := strconv.Itoa(len(o.db) + 1)
 	o.db[key] = o.Ord
 
 	return nil
@@ -75,6 +76,7 @@ func (o *OrderHandler) AddToDB() error {
 // An error is returned if key does not exist in DB map.
 func (o *OrderHandler) Find(key string) error {
 	if _, ok := o.db[key]; !ok {
+		o.Ord = nil
 		return errors.New("order not found")
 	}
 

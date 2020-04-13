@@ -116,7 +116,7 @@ func TestUserHandler_AddToDB(t *testing.T) {
 			}
 
 			want := getUserTestDb()
-			want[generateKeyForUser(tt.fields.Usr)] = tt.fields.Usr
+			want[GenerateKeyForUser(tt.fields.Usr)] = tt.fields.Usr
 
 			if !tt.wantErr && !reflect.DeepEqual(want, tt.fields.db) {
 				t.Errorf("AddToDB() failed. want: %v, got: %v", want, testDb)

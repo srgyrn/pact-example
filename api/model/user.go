@@ -9,9 +9,9 @@ import (
 
 // User holds every data related to a user
 type User struct {
-	Name     string  `json:Name`
-	LastName string  `json:LastName`
-	Balance  float32 `json:Balance` // Current balance of the user
+	Name     string  `json:"Name"`
+	LastName string  `json:"LastName"`
+	Balance  float32 `json:"Balance"` // Current balance of the user
 	Orders   []int   // Orders of the user
 }
 
@@ -60,7 +60,7 @@ func (uh *UserHandler) AddToDB() error {
 		return err
 	}
 
-	key := generateKeyForUser(uh.Usr)
+	key := GenerateKeyForUser(uh.Usr)
 	if _, ok := uh.db[key]; ok {
 		return errors.New("user already exists")
 	}
@@ -78,6 +78,7 @@ func (uh *UserHandler) Find(key string) error {
 		return nil
 	}
 
+	uh.Usr = nil
 	return errors.New("user not found")
 }
 
@@ -99,7 +100,7 @@ func checkName(name, lastName string) error {
 	return nil
 }
 
-// generateKeyForUser is a helper function to create a key for the user
-func generateKeyForUser(u *User) string {
+// GenerateKeyForUser is a helper function to create a key for the user
+func GenerateKeyForUser(u *User) string {
 	return strings.ToLower(u.Name) + "-" + strings.ToLower(u.LastName)
 }
